@@ -1,27 +1,59 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView, Button } from "react-native";
-import firebase from "../database/firebase";
+import fb from "../database/firebase";
 import { ListItem, Avatar } from "react-native-elements";
 
 const UsersList = (props) => {
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
-    firebase.db.collection("users").onSnapshot((querySnapchap) => {
-      const users = [];
-
-      querySnapchap.docs.forEach((doc) => {
-        const { name, email, phone } = doc.data();
-
-        users.push({
-          id: doc.id,
-          name,
-          phone,
-          email,
-        });
+  const logout = () => {
+    fb.firebase
+      .auth()
+      .signOut()
+      .then(function () {
+        // Sign-out successful.
+        console.log("Salio de sesión");
+        props.navigation.replace("LoginScreen");
+      })
+      .catch(function (error) {
+        // An error happened.
       });
-      setUsers(users);
+  };
+
+  const getList = (userID) => {
+    fb.db
+      .collection("users")
+      .doc(userID)
+      .collection("contacts")
+      .onSnapshot((querySnapchap) => {
+
+        const users = [];
+
+        querySnapchap.docs.forEach((doc) => {
+          const { name, email, phone } = doc.data();
+  
+          users.push({
+            id: doc.id,
+            name,
+            phone,
+            email,
+          });
+        });
+        setUsers(users);
+
+      });
+  };
+
+  useEffect(() => {
+    const unsuscribe = fb.firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        getList(user.uid);
+      }
     });
+
+    return () => {
+      unsuscribe();
+    };
   }, []);
 
   return (
@@ -30,14 +62,17 @@ const UsersList = (props) => {
         title="Create User"
         onPress={() => props.navigation.navigate("CreateUserScreen")}
       />
+      <Button title="logout" onPress={logout} />
       {users.map((user) => {
         return (
           <ListItem
             key={user.id}
             bottomDivider
-            onPress={() => props.navigation.navigate("UserDetailScreen", {
-              userId: user.id
-            }) }
+            onPress={() =>
+              props.navigation.navigate("UserDetailScreen", {
+                contactId: user.id,
+              })
+            }
           >
             <ListItem.Chevron />
             <Avatar

@@ -18,12 +18,19 @@ const CreateUserScreen = (props) => {
       alert("please provide a name!");
     } else {
       try {
-        await firebase.db.collection("users").add({
-          name: state.name,
-          email: state.email,
-          phone: state.phone,
-        });
-        props.navigation.navigate('UserList');
+        var user = firebase.firebase.auth().currentUser;
+        console.log(user.uid);
+        await firebase.db
+          .collection("users")
+          .doc(user.uid)
+          .collection("contacts")
+          // .doc(user.uid)
+          .add({
+            name: state.name,
+            email: state.email,
+            phone: state.phone,
+          });
+        props.navigation.navigate("UserList");
       } catch (error) {
         console.log(error);
       }
@@ -31,7 +38,7 @@ const CreateUserScreen = (props) => {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
       <View style={styles.inputGrup}>
         <TextInput
           placeholder="Names User"
