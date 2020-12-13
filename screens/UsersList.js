@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, ScrollView, Button } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import fb from "../database/firebase";
-import { ListItem, Avatar } from "react-native-elements";
+import { ListItem, Avatar, Button } from "react-native-elements";
 
 const UsersList = (props) => {
   const [users, setUsers] = useState([]);
@@ -12,7 +12,6 @@ const UsersList = (props) => {
       .signOut()
       .then(function () {
         // Sign-out successful.
-        console.log("Salio de sesión");
         props.navigation.replace("LoginScreen");
       })
       .catch(function (error) {
@@ -26,12 +25,11 @@ const UsersList = (props) => {
       .doc(userID)
       .collection("contacts")
       .onSnapshot((querySnapchap) => {
-
         const users = [];
 
         querySnapchap.docs.forEach((doc) => {
           const { name, email, phone } = doc.data();
-  
+
           users.push({
             id: doc.id,
             name,
@@ -40,7 +38,6 @@ const UsersList = (props) => {
           });
         });
         setUsers(users);
-
       });
   };
 
@@ -58,11 +55,16 @@ const UsersList = (props) => {
 
   return (
     <ScrollView>
-      <Button
-        title="Create User"
-        onPress={() => props.navigation.navigate("CreateUserScreen")}
-      />
-      <Button title="logout" onPress={logout} />
+      <View style={styles.buttons}>
+        <View style={styles.buttonView}>
+          <Button title="Logout" onPress={logout} type="outline" />
+        </View>
+        <Button
+          title="Add Contact"
+          onPress={() => props.navigation.navigate("CreateContact")}
+        />
+      </View>
+
       {users.map((user) => {
         return (
           <ListItem
@@ -92,5 +94,16 @@ const UsersList = (props) => {
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  buttons: {
+    flex: 1,
+    padding: 15,
+  },
+
+  buttonView: {
+    marginBottom: 15,
+  },
+});
 
 export default UsersList;

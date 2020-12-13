@@ -1,26 +1,19 @@
-// import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { StyleSheet} from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
 const Stack = createStackNavigator();
 
 import UsersList from "./screens/UsersList";
-import CreateUserScreen from "./screens/CreateUserScreen";
+import CreateContact from "./screens/CreateContact";
 import UserDetailScreen from "./screens/UserDetailScreen";
-import LoadingScreen from './screens/LoadingScreen';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
+import LoadingScreen from "./screens/LoadingScreen";
+import LoginScreen from "./screens/LoginScreen";
+import RegisterScreen from "./screens/RegisterScreen";
 
 function MyStack() {
   return (
-    <Stack.Navigator >
-      <Stack.Screen
-        name="UserList"
-        component={UsersList}
-        options={{ title: "Users List" }}
-      />
+    <Stack.Navigator>
       <Stack.Screen
         name="LoadingScreen"
         component={LoadingScreen}
@@ -36,19 +29,15 @@ function MyStack() {
         component={RegisterScreen}
         options={{ title: "Register Screen" }}
       />
-      
-
-
-
-
-
-
-
-      {/* aqui */}
       <Stack.Screen
-        name="CreateUserScreen"
-        component={CreateUserScreen}
-        options={{ title: "Create User" }}
+        name="UserList"
+        component={UsersList}
+        options={{ title: "Users List" }}
+      />
+      <Stack.Screen
+        name="CreateContact"
+        component={CreateContact}
+        options={{ title: "Create Contact" }}
       />
       <Stack.Screen
         name="UserDetailScreen"
@@ -66,12 +55,3 @@ export default function App() {
     </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});

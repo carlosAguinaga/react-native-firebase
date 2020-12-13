@@ -4,9 +4,11 @@ import {
   ScrollView,
   TextInput,
   Button,
+  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
   Alert,
+  Text,
 } from "react-native";
 import firebase from "../database/firebase";
 
@@ -20,10 +22,22 @@ const UserDetailScreen = (props) => {
 
   const [contact, setContact] = useState(initialState);
   const [userId, setUserId] = useState("");
-
   const [loading, setLoading] = useState(true);
 
-  const getUserById = async (contactId, userId) => {
+  useEffect(() => {
+    const unsuscribe = firebase.firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        setUserId(user.uid);
+        getContactById(props.route.params.contactId, user.uid);
+      }
+    });
+
+    return () => {
+      unsuscribe();
+    };
+  }, []);
+
+  const getContactById = async (contactId, userId) => {
     const dbRef = firebase.db
       .collection("users")
       .doc(userId)
@@ -38,41 +52,27 @@ const UserDetailScreen = (props) => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    const unsuscribe = firebase.firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        setUserId(user.uid);
-        getUserById(props.route.params.contactId, user.uid);
-      }
-    });
-
-    return () => {
-      unsuscribe();
-    };
-  }, []);
-
   const handleChangeText = (name, value) => {
     setContact({ ...contact, [name]: value });
   };
 
-  const deleteUser = async () => {
-    console.log("aaaa");
+  const deleteUser = async (contactId, userId) => {
     const dbRef = firebase.db
       .collection("users")
       .doc(userId)
       .collection("contacts")
-      .doc(props.route.params.contactId);
+      .doc(contactId);
     console.log(dbRef);
     await dbRef.delete();
     props.navigation.navigate("UserList");
   };
 
-  const updateUser = async () => {
+  const updateUser = async (contactId, userId) => {
     const dbRef = firebase.db
       .collection("users")
       .doc(userId)
       .collection("contacts")
-      .doc(contact.id);
+      .doc(contactId);
     await dbRef.set({
       name: contact.name,
       email: contact.email,
@@ -82,9 +82,9 @@ const UserDetailScreen = (props) => {
     props.navigation.navigate("UserList");
   };
 
-  const openConfirmateAlert = () => {
+  const openConfirmateAlert = (contactId, userId) => {
     Alert.alert("Remove The user", "Are you sure", [
-      { text: "yes", onPress: () => deleteUser() },
+      { text: "yes", onPress: () => deleteUser(contactId, userId) },
       { text: "no", onPress: () => console.log(false) },
     ]);
   };
@@ -120,20 +120,19 @@ const UserDetailScreen = (props) => {
           onChangeText={(value) => handleChangeText("phone", value)}
         />
       </View>
-      <View>
+      <View style={styles.buttonView}>
         <Button
-          color="#19AC52"
+          color="#2c8add"
           title="Update User"
-          onPress={() => updateUser()}
+          onPress={() => updateUser(contact.id, userId)}
         />
       </View>
-      <View>
-        <Button
-          color="#E37399"
-          title="Delete User"
-          onPress={() => openConfirmateAlert()}
-        />
-      </View>
+      <TouchableOpacity
+        style={styles.secondaryButton}
+        onPress={() => openConfirmateAlert(contact.id, userId)}
+      >
+        <Text style={styles.textColor}>Delete User</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -149,6 +148,18 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderBottomWidth: 1,
     borderBottomColor: "#cccccc",
+  },
+  buttonView: {
+    marginBottom: 15,
+  },
+  secondaryButton: {
+    alignItems: "center",
+    padding: 10,
+    borderWidth: 2,
+    borderColor: "#2c8add",
+  },
+  textColor: {
+    color: "#2c8add",
   },
 });
 

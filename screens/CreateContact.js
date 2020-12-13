@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Button, TextInput, ScrollView, StyleSheet } from "react-native";
-import firebase from "../database/firebase";
+import fb from "../database/firebase";
 
-const CreateUserScreen = (props) => {
+const CreateContact = (props) => {
   const [state, setState] = useState({
     name: "",
     email: "",
@@ -18,13 +18,11 @@ const CreateUserScreen = (props) => {
       alert("please provide a name!");
     } else {
       try {
-        var user = firebase.firebase.auth().currentUser;
-        console.log(user.uid);
-        await firebase.db
+        var user = fb.firebase.auth().currentUser;
+        await fb.db
           .collection("users")
           .doc(user.uid)
           .collection("contacts")
-          // .doc(user.uid)
           .add({
             name: state.name,
             email: state.email,
@@ -58,7 +56,7 @@ const CreateUserScreen = (props) => {
         />
       </View>
       <View>
-        <Button title="Save User" onPress={() => saveNewUser()} />
+        <Button title="Save Contact" onPress={() => saveNewUser()} />
       </View>
     </ScrollView>
   );
@@ -78,4 +76,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CreateUserScreen;
+export default CreateContact;
